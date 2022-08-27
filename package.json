@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "yarn build",
-    "lint": "eslint --ext=.tsx,.ts,.json src/ scripts/",
+    "lint": "eslint --ext=.tsx,.ts,.json src/",
     "lint:fix": "yarn lint --fix",
     "format": "prettier --loglevel error --write .",
     "format:check": "prettier --check .",
