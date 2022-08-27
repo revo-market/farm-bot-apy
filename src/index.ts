@@ -39,8 +39,12 @@ function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
   // TODO (use Compound events)
 }
 
-function getAPY(apr: BigNumber, compoundTimesPerYear: number): BigNumber {
-  // TODO
+export function getAPY(apr: BigNumber, compoundTimesPerYear: number): BigNumber {
+  return apr
+    .div(compoundTimesPerYear)
+    .plus(1)
+    .exponentiatedBy(compoundTimesPerYear)
+    .minus(1)
 }
 
 interface FarmBotAPY {
