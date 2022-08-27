@@ -1,43 +1,6 @@
-# typescript-app-starter
+# farm-bot-apy
 
-A starter template for Valora TypeScript projects with best practices.
-
-## What's in the stack?
-
-- [TypeScript](https://www.typescriptlang.org/)
-- Unit testing with [Jest](https://jestjs.io)
-- Linting with [ESLint](https://eslint.org/), configured with [@valora/eslint-config-typescript](https://github.com/valora-inc/eslint-config-typescript)
-- Automatic code formating with [Prettier](https://prettier.io/), configured with [@valora/prettier-config](https://github.com/valora-inc/prettier-config)
-- Scripts using [ShellJS](https://github.com/shelljs/shelljs)
-  - Linted and statically checked with [TypeScript](https://www.typescriptlang.org/)
-- CI/CD with [GitHub Actions](https://docs.github.com/en/actions)
-  - Code coverage uploaded to [Codecov](codecov.io)
-- Automated dependency updates with [Renovate](https://renovatebot.com/), configured with [valora-inc/renovate-config](https://github.com/valora-inc/renovate-config)
-
-## How to use this?
-
-Above the file list, click the big green button: `Use this template`.
-
-Or using [GitHub CLI](https://cli.github.com/):
-
-```sh
-gh repo create --template valora-inc/typescript-app-starter valora-inc/new-repo
-```
-
-### Set up Codecov
-
-- Get a token for the repo [following these instructions](https://docs.codecov.com/docs#step-2-get-the-repository-upload-token).
-- Add `CODECOV_TOKEN` to the repo secrets [following these instructions](https://docs.github.com/en/codespaces/managing-codespaces-for-your-organization/managing-encrypted-secrets-for-your-repository-and-organization-for-codespaces#adding-secrets-for-a-repository).
-
-## Structure
-
-Here's the recommended structure:
-
-- [`src`](src): source code
-  - [`index.ts`](src/index.ts): example source file
-  - [`index.test.ts`](src/index.test.ts): unit tests for `index.ts`
-- [`scripts`](scripts): more complex scripts in TypeScript
-  - [`example.ts`](scripts/example.ts): example script using [ShellJS](https://github.com/shelljs/shelljs)
+Calculate the APY of a farm bot.
 
 ## Type Checking
 
@@ -54,12 +17,6 @@ This project uses [ESLint](https://eslint.org/) for linting. That is configured 
 ## Formatting
 
 We use [Prettier](https://prettier.io) for auto-formatting. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `yarn format` script you can run to format all files in the project.
-
-## Scripts
-
-We use TypeScript instead of shell scripts. This is it to avoid the many pitfalls of shell scripts.
-
-To run external commands we recommend using [ShellJS](https://github.com/shelljs/shelljs).
 
 ## GitHub Actions
 

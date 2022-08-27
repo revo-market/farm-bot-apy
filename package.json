@@ -1,9 +1,9 @@
 {
-  "name": "typescript-starter",
+  "name": "farm-bot-apy",
   "version": "0.0.1",
   "main": "dist/index.js",
-  "repository": "git@github.com:valora-inc/typescript-starter.git",
-  "author": "Valora Inc",
+  "repository": "git@github.com:revo-market/farm-bot-apy.git",
+  "author": "Revo Inc",
   "license": "Apache-2.0",
   "private": true,
   "engines": {
@@ -21,7 +21,6 @@
     "test:watch": "yarn test --watch",
     "test:ci": "yarn test --ci --coverage",
     "supercheck": "yarn format && yarn lint:fix && yarn typecheck && yarn test",
-    "example": "ts-node ./scripts/example.ts",
     "deploy": "echo 'Deployed!'"
   },
   "devDependencies": {
