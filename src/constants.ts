@@ -1,0 +1,65 @@
+import { FarmData } from './types'
+
+const mcUSD_ADDRESS_MAINNET = '0x918146359264C492BD6934071c6Bd31C854EDBc3'
+const mcEUR_ADDRESS_MAINNET = '0xE273Ad7ee11dCfAA87383aD5977EE1504aC07568'
+const mcUSD_mcEUR_FP_MAINNET = '0xCB34fbfC3b9a73bc04D2eb43B62532c7918d9E81'
+const mcUSD_mcEUR_LP_MAINNET = '0xf94fea0c87d2b357dc72b743b45a8cb682b0716e'
+
+const PACT_ADDRESS_MAINNET = '0x46c9757C5497c5B1f2eb73aE79b6B67D119B0B58'
+const CELO_ADDRESS_MAINNET = '0x471EcE3750Da237f93B8E339c536989b8978a438'
+const PACT_CELO_FP_MAINNET = '0xec17fb85529a6a48cb6ed7e3c1d1a7cc57d742c1'
+const PACT_CELO_LP_MAINNET = '0x39AC98447f28612D3583e46E57cb106337FCAe3F'
+
+const UBE_ADDRESS_MAINNET = '0x00Be915B9dCf56a3CBE739D9B9c202ca692409EC'
+const UBE_CELO_FP_MAINNET = '0x1cEC3e5722CB0a2FFB78e299b9607ea7efA92090'
+const UBE_CELO_LP_MAINNET = '0xe7B5AD135fa22678F426A381C7748f6A5f2c9E6C'
+
+const mcUSD_RFP_LP_ADDRESS_MAINNET =
+  '0x25938830FBd7619bf6CFcFDf5C37A22AB15A93cA' // mcUSD / mcUSD-mcEUR-FP liquidity pool
+export const FARM_DATA: FarmData[] = [
+  {
+    zapTokenName: 'mcUSD',
+    FPTokenName: 'mcUSD-mcEUR RFP',
+    zapLPAddress: mcUSD_RFP_LP_ADDRESS_MAINNET,
+    baseLPAddress: mcUSD_mcEUR_LP_MAINNET,
+    zapTokenAddress: mcUSD_ADDRESS_MAINNET,
+    FPTokenAddress: mcUSD_mcEUR_FP_MAINNET,
+    metaFarmBotAddress: '0xAcA7148642d2C634b318ff36d14764f8Bde4dc95',
+    stakingToken0Address: mcUSD_ADDRESS_MAINNET,
+    stakingToken1Address: mcEUR_ADDRESS_MAINNET,
+    stakingToken0ToZapToken: [mcUSD_ADDRESS_MAINNET],
+    stakingToken1ToZapToken: [mcEUR_ADDRESS_MAINNET, mcUSD_ADDRESS_MAINNET],
+  },
+  {
+    zapTokenName: 'mcUSD',
+    FPTokenName: 'PACT-CELO RFP',
+    zapLPAddress: '0xA1A1D29a7108a89b715a9277a2abCa3BA33C2180',
+    baseLPAddress: PACT_CELO_LP_MAINNET,
+    zapTokenAddress: mcUSD_ADDRESS_MAINNET,
+    FPTokenAddress: PACT_CELO_FP_MAINNET,
+    stakingToken0Address: PACT_ADDRESS_MAINNET,
+    stakingToken1Address: CELO_ADDRESS_MAINNET,
+    stakingToken0ToZapToken: [
+      PACT_ADDRESS_MAINNET,
+      CELO_ADDRESS_MAINNET,
+      mcUSD_ADDRESS_MAINNET,
+    ],
+    stakingToken1ToZapToken: [CELO_ADDRESS_MAINNET, mcUSD_ADDRESS_MAINNET],
+  },
+  {
+    zapTokenName: 'mcUSD',
+    FPTokenName: 'UBE-CELO RFP',
+    zapLPAddress: '0x04cd8d2C8eFaDb4A546CbAa60d80a82aE7A5c00F',
+    baseLPAddress: UBE_CELO_LP_MAINNET,
+    zapTokenAddress: mcUSD_ADDRESS_MAINNET,
+    FPTokenAddress: UBE_CELO_FP_MAINNET,
+    stakingToken0Address: UBE_ADDRESS_MAINNET,
+    stakingToken1Address: CELO_ADDRESS_MAINNET,
+    stakingToken0ToZapToken: [
+      UBE_ADDRESS_MAINNET,
+      CELO_ADDRESS_MAINNET,
+      mcUSD_ADDRESS_MAINNET,
+    ],
+    stakingToken1ToZapToken: [CELO_ADDRESS_MAINNET, mcUSD_ADDRESS_MAINNET],
+  },
+]
