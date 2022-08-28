@@ -77,7 +77,9 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
   if (compoundEventsThisWeek.length <= 2) {
     throw new Error('Not enough compound events found')
   }
-  const [prevCompoundEvent, curCompoundEvent] = compoundEventsThisWeek.slice(-2)
+  const [prevCompoundEvent, curCompoundEvent] = compoundEventsThisWeek
+    .sort((eventA, eventB) => eventA.blockNumber - eventB.blockNumber) // ascending by block number
+    .slice(-2)
   const compoundPeriodSeconds =
     (curCompoundEvent.blockNumber - prevCompoundEvent.blockNumber) *
     SECONDS_PER_BLOCK
@@ -87,7 +89,7 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
   if (!curCompoundEvent.args) {
     throw new Error(`No args in compound event: ${curCompoundEvent}`)
   }
-  const apr = compoundTimesPerYear
+  const apr = compoundTimesPerYear //fixme this looks way too big in practice
     .multipliedBy(curCompoundEvent.args.lpStaked.toString()) // toString is lame hack to get different BigNumber versions to work together
     .div(curCompoundEvent.args.newLPTotalBalance.toString()) // same here
   return getAPYApprox({ apr, compoundTimesPerYear })
@@ -112,6 +114,7 @@ export function getAPYApprox({
     ? 365
     : compoundTimesPerYear
   return apr
+    .div(compoundTimesApprox)
     .plus(1)
     .exponentiatedBy(compoundTimesApprox)
     .minus(1)
@@ -155,7 +158,7 @@ export const getAllMetaFarmsAPY: HttpFunction = async (_req, res) => {
  */
 export const getAllBaseFarmsValue: HttpFunction = async (_req, res) => {
   const output: FarmBotValue = {}
-  for (const farmData of FARM_DATA.slice(0, 1)) {
+  for (const farmData of FARM_DATA) {
     const farmBotAddress = farmData.FPTokenAddress
     output[farmBotAddress] = {
       apy: (await getFarmBotAPY(farmBotAddress)).toString(10),
