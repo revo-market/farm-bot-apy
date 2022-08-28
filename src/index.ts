@@ -84,7 +84,8 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
     'latest',
   )
   if (compoundEventsThisWeek.length <= 2) {
-    throw new Error('Not enough compound events found')
+    console.error('Not enough compound events found, returning 0')
+    return new BigNumber(0)
   }
   const [prevCompoundEvent, curCompoundEvent] = compoundEventsThisWeek
     .sort((eventA, eventB) => eventA.blockNumber - eventB.blockNumber) // ascending by block number
