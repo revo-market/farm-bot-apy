@@ -46,13 +46,12 @@ async function getMetaLPUSDValueApprox(metaLP: string): Promise<BigNumber> {
     ERC20_ABI,
     rpcProvider,
   )
-  const mcUSDInPool = (await mcUSDContract.balanceOf(metaLP)).toString()
+  const mcUSDInPool = new BigNumber((await mcUSDContract.balanceOf(metaLP)).toString())
   const lpContract = new ethers.Contract(metaLP, ERC20_ABI, rpcProvider)
   const lpTotalSupply = (await lpContract.totalSupply()).toString()
-  return new BigNumber(mcUSDInPool)
+  return mcUSDInPool
     .multipliedBy(2) // account for approx value of RFP in pool, if arbitrage working
     .dividedBy(lpTotalSupply)
-    .dividedBy(new BigNumber(10).exponentiatedBy(18)) // convert from wei to eth (in this case USD)
 }
 
 /**
@@ -89,7 +88,7 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
   if (!curCompoundEvent.args) {
     throw new Error(`No args in compound event: ${curCompoundEvent}`)
   }
-  const apr = compoundTimesPerYear //fixme this looks way too big in practice
+  const apr = compoundTimesPerYear
     .multipliedBy(curCompoundEvent.args.lpStaked.toString()) // toString is lame hack to get different BigNumber versions to work together
     .div(curCompoundEvent.args.newLPTotalBalance.toString()) // same here
   return getAPYApprox({ apr, compoundTimesPerYear })
