@@ -44,6 +44,7 @@
   },
   "prettier": "@valora/prettier-config",
   "dependencies": {
-    "bignumber.js": "^9.1.0"
+    "bignumber.js": "^9.1.0",
+    "ethers": "^5.7.0"
   }
 }

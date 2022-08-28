@@ -11,3 +11,10 @@ export interface FarmData {
   stakingToken0ToZapToken: string[] // swap path from staking token 0 to zap token
   stakingToken1ToZapToken: string[] // swap path from staking token 1 to zap token
 }
+
+export interface FarmBotValue {
+  [farmBotAddress: string]: {
+    apy: string,
+    tvlUSD: string
+  }
+}
