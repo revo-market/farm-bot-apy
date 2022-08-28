@@ -14,6 +14,11 @@ const SECONDS_PER_YEAR = SECONDS_PER_DAY * 365
 const BLOCKS_PER_DAY = SECONDS_PER_DAY / SECONDS_PER_BLOCK
 
 const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URL)
+const mcUSDContract = new ethers.Contract(
+  mcUSD_ADDRESS_MAINNET,
+  ERC20_ABI,
+  rpcProvider,
+)
 
 /**
  * Get the LP balance of a farm bot.
@@ -29,29 +34,34 @@ async function getLPBalance(farmBotAddress: string): Promise<BigNumber> {
   const lpAddress = await farmBotContract.stakingToken()
   const lpContract = new ethers.Contract(lpAddress, ERC20_ABI, rpcProvider)
   const farmBotLPBalance = await lpContract.balanceOf(farmBotAddress)
-  return new BigNumber(farmBotLPBalance)
+  return new BigNumber(farmBotLPBalance.toString())
 }
 
 /**
- * Get the approximate USD value of a meta-liquidity provider token.
+ * Get the approximate TVL of a "base" (not meta) farm bot in USD.
  *
  * NOTE: assumes meta-LP has mcUSD on one side of the pool!!
  * NOTE2: "approx" because the LP is not guaranteed to be balanced (assumes arbitrage is working its magic)
  *
- * @param metaLP
+ * @param zapLPAddress
+ * @param farmBotAddress
  */
-async function getMetaLPUSDValueApprox(metaLP: string): Promise<BigNumber> {
-  const mcUSDContract = new ethers.Contract(
-    mcUSD_ADDRESS_MAINNET,
-    ERC20_ABI,
-    rpcProvider,
-  )
-  const mcUSDInPool = new BigNumber((await mcUSDContract.balanceOf(metaLP)).toString())
-  const lpContract = new ethers.Contract(metaLP, ERC20_ABI, rpcProvider)
+async function getBaseFarmBotTVLApprox({zapLPAddress}: {zapLPAddress: string}): Promise<string> {
+  const zapLPTVLWei = (await mcUSDContract.balanceOf(zapLPAddress)).toString()
+  return ethers.utils.formatEther(zapLPTVLWei)
+}
+
+async function getMetaFarmBotTVLApprox({zapLPAddress, metaFarmBotAddress}: {zapLPAddress: string, metaFarmBotAddress: string}): Promise<string> {
+  const mcUSDInPool = new BigNumber((await mcUSDContract.balanceOf(zapLPAddress)).toString())
+  const lpContract = new ethers.Contract(zapLPAddress, ERC20_ABI, rpcProvider)
   const lpTotalSupply = (await lpContract.totalSupply()).toString()
-  return mcUSDInPool
+  const lpValueUSD = mcUSDInPool
     .multipliedBy(2) // account for approx value of RFP in pool, if arbitrage working
     .dividedBy(lpTotalSupply)
+  const tvlWei = lpValueUSD
+    .multipliedBy(await getLPBalance(metaFarmBotAddress))
+    .toString()
+  return ethers.utils.formatEther(tvlWei)
 }
 
 /**
@@ -135,10 +145,8 @@ export const getAllMetaFarmsAPY: HttpFunction = async (_req, res) => {
     const metaFarmBotAddress = farmData.metaFarmBotAddress
     if (metaFarmBotAddress) {
       output[metaFarmBotAddress] = {
-        apy: (await getFarmBotAPY(metaFarmBotAddress)).toString(10),
-        tvlUSD: (await getMetaLPUSDValueApprox(farmData.zapLPAddress))
-          .multipliedBy(await getLPBalance(metaFarmBotAddress))
-          .toString(10),
+        apy: (await getFarmBotAPY(metaFarmBotAddress)).toString(),
+        tvlUSD: await getMetaFarmBotTVLApprox({metaFarmBotAddress: metaFarmBotAddress, zapLPAddress: farmData.zapLPAddress}),
       }
     }
   }
@@ -161,9 +169,7 @@ export const getAllBaseFarmsValue: HttpFunction = async (_req, res) => {
     const farmBotAddress = farmData.FPTokenAddress
     output[farmBotAddress] = {
       apy: (await getFarmBotAPY(farmBotAddress)).toString(10),
-      tvlUSD: (await getMetaLPUSDValueApprox(farmData.baseLPAddress))
-        .multipliedBy(await getLPBalance(farmBotAddress))
-        .toString(10),
+      tvlUSD: await getBaseFarmBotTVLApprox({zapLPAddress: farmData.zapLPAddress})
     }
   }
   console.log(JSON.stringify(output))
