@@ -16,8 +16,8 @@ describe('getAPYApprox', () => {
     expect(
       getAPYApprox({
         apr,
-        compoundTimesPerYear
-      }).toFixed(5)
+        compoundTimesPerYear,
+      }).toFixed(5),
     ).toEqual('0.64816') // estimate should be same as daily compounding
   })
 })

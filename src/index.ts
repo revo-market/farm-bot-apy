@@ -5,6 +5,7 @@ import { FarmBotValue } from './types'
 import FARM_BOT_ABI from './abis/FarmBot.json'
 import ERC20_ABI from './abis/ERC20.json'
 import { ethers } from 'ethers'
+import Logger from './log'
 
 const RPC_URL = 'https://forno.celo.org'
 
@@ -46,21 +47,39 @@ async function getLPBalance(farmBotAddress: string): Promise<BigNumber> {
  * @param zapLPAddress
  * @param farmBotAddress
  */
-async function getBaseFarmBotTVLApprox({zapLPAddress}: {zapLPAddress: string}): Promise<string> {
+async function getBaseFarmBotTVLApprox({
+  zapLPAddress,
+}: {
+  zapLPAddress: string
+}): Promise<string> {
   const zapLPTVLWei = (await mcUSDContract.balanceOf(zapLPAddress)).toString()
   return ethers.utils.formatEther(zapLPTVLWei)
 }
 
-async function getMetaFarmBotTVLApprox({zapLPAddress, metaFarmBotAddress}: {zapLPAddress: string, metaFarmBotAddress: string}): Promise<string> {
-  const mcUSDInPool = new BigNumber((await mcUSDContract.balanceOf(zapLPAddress)).toString())
+/**
+ * Get the approximate TVL of a "meta" farm bot (a farm bot on a liquidity pool that includes a farm bot).
+ *
+ * @param zapLPAddress: liquidity pool with the "base" farm bot in it
+ * @param metaFarmBotAddress: address of the meta-farm bot
+ */
+async function getMetaFarmBotTVLApprox({
+  zapLPAddress,
+  metaFarmBotAddress,
+}: {
+  zapLPAddress: string
+  metaFarmBotAddress: string
+}): Promise<string> {
+  const mcUSDInPool = new BigNumber(
+    (await mcUSDContract.balanceOf(zapLPAddress)).toString(),
+  )
   const lpContract = new ethers.Contract(zapLPAddress, ERC20_ABI, rpcProvider)
   const lpTotalSupply = (await lpContract.totalSupply()).toString()
-  const lpValueUSD = mcUSDInPool
+  const USDPerLP = mcUSDInPool
     .multipliedBy(2) // account for approx value of RFP in pool, if arbitrage working
     .dividedBy(lpTotalSupply)
-  const tvlWei = lpValueUSD
-    .multipliedBy(await getLPBalance(metaFarmBotAddress))
-    .toString()
+  const tvlWei = USDPerLP.multipliedBy(
+    await getLPBalance(metaFarmBotAddress),
+  ).toString()
   return ethers.utils.formatEther(tvlWei)
 }
 
@@ -84,7 +103,7 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
     'latest',
   )
   if (compoundEventsThisWeek.length <= 2) {
-    console.error('Not enough compound events found, returning 0')
+    Logger.error('Not enough compound events found, returning 0')
     return new BigNumber(0)
   }
   const [prevCompoundEvent, curCompoundEvent] = compoundEventsThisWeek
@@ -147,11 +166,14 @@ export const getAllMetaFarmsAPY: HttpFunction = async (_req, res) => {
     if (metaFarmBotAddress) {
       output[metaFarmBotAddress] = {
         apy: (await getFarmBotAPY(metaFarmBotAddress)).toString(),
-        tvlUSD: await getMetaFarmBotTVLApprox({metaFarmBotAddress: metaFarmBotAddress, zapLPAddress: farmData.zapLPAddress}),
+        tvlUSD: await getMetaFarmBotTVLApprox({
+          metaFarmBotAddress: metaFarmBotAddress,
+          zapLPAddress: farmData.zapLPAddress,
+        }),
       }
     }
   }
-  console.log(JSON.stringify(output))
+  Logger.debug('output: ' + JSON.stringify(output))
   res.status(200).send(output)
 }
 
@@ -170,9 +192,11 @@ export const getAllBaseFarmsValue: HttpFunction = async (_req, res) => {
     const farmBotAddress = farmData.FPTokenAddress
     output[farmBotAddress] = {
       apy: (await getFarmBotAPY(farmBotAddress)).toString(10),
-      tvlUSD: await getBaseFarmBotTVLApprox({zapLPAddress: farmData.zapLPAddress})
+      tvlUSD: await getBaseFarmBotTVLApprox({
+        zapLPAddress: farmData.zapLPAddress,
+      }),
     }
   }
-  console.log(JSON.stringify(output))
+  Logger.debug('output: ' + JSON.stringify(output))
   res.status(200).send(output)
 }
