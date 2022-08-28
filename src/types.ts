@@ -14,7 +14,7 @@ export interface FarmData {
 
 export interface FarmBotValue {
   [farmBotAddress: string]: {
-    apy: string,
+    apy: string
     tvlUSD: string
   }
 }
