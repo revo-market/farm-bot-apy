@@ -1,8 +1,13 @@
-import { getAPY } from 'src'
 import { BigNumber } from 'bignumber.js'
+import { getAPYApprox } from './index'
 
 describe('index', () => {
-  it('getAPY', () => {
-    expect(getAPY(new BigNumber(0.5), 12)).toBe(new BigNumber(6.17)) // from example at https://www.investopedia.com/terms/a/apy.asp
+  it('getAPYApprox', () => {
+    expect(
+      getAPYApprox({
+        apr: new BigNumber(0.005), // 0.5%
+        compoundTimesPerYear: new BigNumber(12),
+      }).toFixed(5),
+    ).toBe('0.06168') // from example at https://www.investopedia.com/terms/a/apy.asp
   })
 })
