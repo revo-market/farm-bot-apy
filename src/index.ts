@@ -13,6 +13,7 @@ const SECONDS_PER_BLOCK = 5
 const SECONDS_PER_DAY = 24 * 60 * 60
 const SECONDS_PER_YEAR = SECONDS_PER_DAY * 365
 const BLOCKS_PER_DAY = SECONDS_PER_DAY / SECONDS_PER_BLOCK
+const WEI_PER_ETH = new BigNumber(10).exponentiatedBy(18)
 
 const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URL)
 const mcUSDContract = new ethers.Contract(
@@ -20,6 +21,12 @@ const mcUSDContract = new ethers.Contract(
   ERC20_ABI,
   rpcProvider,
 )
+
+function weiToEth(weiAmount: BigNumber): BigNumber {
+  // could use ethers.utils.formatEther, but that doesn't play nice with different BigNumber versions (even if the
+  //  input is string-ified first)
+  return weiAmount.dividedBy(WEI_PER_ETH)
+}
 
 /**
  * Get the LP balance of a farm bot.
@@ -49,11 +56,18 @@ async function getLPBalance(farmBotAddress: string): Promise<BigNumber> {
  */
 async function getBaseFarmBotTVLApprox({
   zapLPAddress,
+  farmBotAddress
 }: {
   zapLPAddress: string
+  farmBotAddress: string
 }): Promise<string> {
-  const zapLPTVLWei = (await mcUSDContract.balanceOf(zapLPAddress)).toString()
-  return ethers.utils.formatEther(zapLPTVLWei)
+  const mcUSDInZapLP = new BigNumber((await mcUSDContract.balanceOf(zapLPAddress)).toString())
+  const farmBotContract = new ethers.Contract(farmBotAddress, FARM_BOT_ABI, rpcProvider)
+  const FPInZapLP = new BigNumber((await farmBotContract.balanceOf(zapLPAddress)).toString())
+  const USDPerFP = mcUSDInZapLP.dividedBy(FPInZapLP)
+  const FPMinted = new BigNumber((await farmBotContract.totalSupply()).toString())
+  const tvlUSDWei = FPMinted.multipliedBy(USDPerFP)
+  return weiToEth(tvlUSDWei).toString()
 }
 
 /**
@@ -79,8 +93,8 @@ async function getMetaFarmBotTVLApprox({
     .dividedBy(lpTotalSupply)
   const tvlWei = USDPerLP.multipliedBy(
     await getLPBalance(metaFarmBotAddress),
-  ).toString()
-  return ethers.utils.formatEther(tvlWei)
+  )
+  return weiToEth(tvlWei).toString()
 }
 
 /**
@@ -194,6 +208,7 @@ export const getAllBaseFarmsValue: HttpFunction = async (_req, res) => {
       apy: (await getFarmBotAPY(farmBotAddress)).toString(10),
       tvlUSD: await getBaseFarmBotTVLApprox({
         zapLPAddress: farmData.zapLPAddress,
+        farmBotAddress
       }),
     }
   }
