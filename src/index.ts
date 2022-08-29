@@ -111,16 +111,16 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
     rpcProvider,
   )
   const compoundEventsFilter = farmBotContract.filters.Compound()
-  const compoundEventsThisWeek = await farmBotContract.queryFilter(
+  const recentCompoundEvents = await farmBotContract.queryFilter(
     compoundEventsFilter,
-    -BLOCKS_PER_DAY * 7,
+    -BLOCKS_PER_DAY,
     'latest',
   )
-  if (compoundEventsThisWeek.length <= 2) {
+  if (recentCompoundEvents.length <= 2) {
     Logger.error('Not enough compound events found, returning 0')
     return new BigNumber(0)
   }
-  const [prevCompoundEvent, curCompoundEvent] = compoundEventsThisWeek
+  const [prevCompoundEvent, curCompoundEvent] = recentCompoundEvents
     .sort((eventA, eventB) => eventA.blockNumber - eventB.blockNumber) // ascending by block number
     .slice(-2)
   const compoundPeriodSeconds =
