@@ -67,4 +67,5 @@ jobs:
           node-version: '16'
           check-latest: true
       - run: yarn
+      - run: yarn build
       - run: yarn deploy
