@@ -55,16 +55,26 @@ async function getLPBalance(farmBotAddress: string): Promise<BigNumber> {
  */
 export async function getBaseFarmBotTVLApprox({
   zapLPAddress,
-  farmBotAddress
+  farmBotAddress,
 }: {
   zapLPAddress: string
   farmBotAddress: string
 }): Promise<string> {
-  const mcUSDInZapLP = new BigNumber((await mcUSDContract.balanceOf(zapLPAddress)).toString())
-  const farmBotContract = new ethers.Contract(farmBotAddress, FARM_BOT_ABI, rpcProvider)
-  const FPInZapLP = new BigNumber((await farmBotContract.balanceOf(zapLPAddress)).toString())
+  const mcUSDInZapLP = new BigNumber(
+    (await mcUSDContract.balanceOf(zapLPAddress)).toString(),
+  )
+  const farmBotContract = new ethers.Contract(
+    farmBotAddress,
+    FARM_BOT_ABI,
+    rpcProvider,
+  )
+  const FPInZapLP = new BigNumber(
+    (await farmBotContract.balanceOf(zapLPAddress)).toString(),
+  )
   const USDPerFP = mcUSDInZapLP.dividedBy(FPInZapLP)
-  const FPMinted = new BigNumber((await farmBotContract.totalSupply()).toString())
+  const FPMinted = new BigNumber(
+    (await farmBotContract.totalSupply()).toString(),
+  )
   const tvlUSDWei = FPMinted.multipliedBy(USDPerFP)
   return weiToEth(tvlUSDWei).toString()
 }
@@ -90,9 +100,7 @@ export async function getMetaFarmBotTVLApprox({
   const USDPerLP = mcUSDInPool
     .multipliedBy(2) // account for approx value of RFP in pool, if arbitrage working
     .dividedBy(lpTotalSupply)
-  const tvlWei = USDPerLP.multipliedBy(
-    await getLPBalance(metaFarmBotAddress),
-  )
+  const tvlWei = USDPerLP.multipliedBy(await getLPBalance(metaFarmBotAddress))
   return weiToEth(tvlWei).toString()
 }
 
@@ -103,7 +111,9 @@ export async function getMetaFarmBotTVLApprox({
  *
  * @param farmBotAddress
  */
-export async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
+export async function getFarmBotAPY(
+  farmBotAddress: string,
+): Promise<BigNumber> {
   const farmBotContract = new ethers.Contract(
     farmBotAddress,
     FARM_BOT_ABI,
@@ -193,7 +203,7 @@ export async function getAllMetaFarmsValue() {
  * NOTE: TVL is given in ethers, not wei
  * NOTE2: APY is given as a fraction, not a percentage
  */
-export async function getAllBaseFarmsValue(){
+export async function getAllBaseFarmsValue() {
   const output: FarmBotValue = {}
   for (const farmData of FARM_DATA) {
     const farmBotAddress = farmData.FPTokenAddress
@@ -201,7 +211,7 @@ export async function getAllBaseFarmsValue(){
       apy: (await getFarmBotAPY(farmBotAddress)).toString(10),
       tvlUSD: await getBaseFarmBotTVLApprox({
         zapLPAddress: farmData.zapLPAddress,
-        farmBotAddress
+        farmBotAddress,
       }),
     }
   }
