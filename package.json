@@ -20,7 +20,7 @@
     "test:watch": "yarn test --watch",
     "test:ci": "yarn test --ci --coverage",
     "supercheck": "yarn format && yarn lint:fix && yarn typecheck && yarn test",
-    "deploy": "npx semantic-release"
+    "release": "npx semantic-release"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.8",

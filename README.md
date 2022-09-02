@@ -26,7 +26,7 @@ We use [GitHub Actions](https://docs.github.com/en/actions) for continuous integ
 
 [Renovate](https://renovatebot.com/) ensures our dependencies are kept up to date. It's configured with our shared config in [`renovate.json5`](renovate.json5).
 
-## Deploy
+## Release
 
-`farm-bot-apy` is deployed to NPM automatically when PR's are merged to `main`. Remember to use conventional commits
+New versions of `farm-bot-apy` are released to NPM automatically when PR's are merged to `main`. Remember to use conventional commits
 so that `semantic-release` can parse your commit messages and update version numbers appropriately.
