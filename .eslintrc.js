@@ -7,5 +7,5 @@ module.exports = {
     // Maybe move it to @valora/eslint-config-typescript?
     'jest/valid-title': ['error', { ignoreTypeOfDescribeName: true }],
   },
-  ignorePatterns: ['tsconfig.json'],
+  ignorePatterns: ['tsconfig.json', 'src/abis/**/*'],
 }
