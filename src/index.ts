@@ -52,13 +52,16 @@ async function getLPBalance(farmBotAddress: string): Promise<BigNumber> {
  *
  * @param zapLPAddress
  * @param farmBotAddress
+ * @param decimalPlaces: number of decimal places to include in output. Must be nonnegative integer. Defaults to 0.
  */
 export async function getBaseFarmBotTVLApprox({
   zapLPAddress,
   farmBotAddress,
+  decimalPlaces,
 }: {
   zapLPAddress: string
   farmBotAddress: string
+  decimalPlaces?: number
 }): Promise<string> {
   const mcUSDInZapLP = new BigNumber(
     (await mcUSDContract.balanceOf(zapLPAddress)).toString(),
@@ -76,7 +79,7 @@ export async function getBaseFarmBotTVLApprox({
     (await farmBotContract.totalSupply()).toString(),
   )
   const tvlUSDWei = FPMinted.multipliedBy(USDPerFP)
-  return weiToEth(tvlUSDWei).toString()
+  return weiToEth(tvlUSDWei).toFixed(decimalPlaces ?? 0)
 }
 
 /**
@@ -84,13 +87,16 @@ export async function getBaseFarmBotTVLApprox({
  *
  * @param zapLPAddress: liquidity pool with the "base" farm bot in it
  * @param metaFarmBotAddress: address of the meta-farm bot
+ * @param decimalPlaces: number of decimal places to include in output. Must be nonnegative integer. Defaults to 0.
  */
 export async function getMetaFarmBotTVLApprox({
   zapLPAddress,
   metaFarmBotAddress,
+  decimalPlaces,
 }: {
   zapLPAddress: string
   metaFarmBotAddress: string
+  decimalPlaces?: number
 }): Promise<string> {
   const mcUSDInPool = new BigNumber(
     (await mcUSDContract.balanceOf(zapLPAddress)).toString(),
@@ -101,7 +107,7 @@ export async function getMetaFarmBotTVLApprox({
     .multipliedBy(2) // account for approx value of RFP in pool, if arbitrage working
     .dividedBy(lpTotalSupply)
   const tvlWei = USDPerLP.multipliedBy(await getLPBalance(metaFarmBotAddress))
-  return weiToEth(tvlWei).toString()
+  return weiToEth(tvlWei).toFixed(decimalPlaces ?? 0)
 }
 
 /**
