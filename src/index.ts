@@ -1,4 +1,3 @@
-import { HttpFunction } from '@google-cloud/functions-framework/build/src/functions'
 import { BigNumber } from 'bignumber.js'
 import { FARM_DATA, mcUSD_ADDRESS_MAINNET } from './constants'
 import { FarmBotValue } from './types'
@@ -54,7 +53,7 @@ async function getLPBalance(farmBotAddress: string): Promise<BigNumber> {
  * @param zapLPAddress
  * @param farmBotAddress
  */
-async function getBaseFarmBotTVLApprox({
+export async function getBaseFarmBotTVLApprox({
   zapLPAddress,
   farmBotAddress
 }: {
@@ -76,7 +75,7 @@ async function getBaseFarmBotTVLApprox({
  * @param zapLPAddress: liquidity pool with the "base" farm bot in it
  * @param metaFarmBotAddress: address of the meta-farm bot
  */
-async function getMetaFarmBotTVLApprox({
+export async function getMetaFarmBotTVLApprox({
   zapLPAddress,
   metaFarmBotAddress,
 }: {
@@ -104,7 +103,7 @@ async function getMetaFarmBotTVLApprox({
  *
  * @param farmBotAddress
  */
-async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
+export async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
   const farmBotContract = new ethers.Contract(
     farmBotAddress,
     FARM_BOT_ABI,
@@ -135,7 +134,7 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
   const apr = compoundTimesPerYear
     .multipliedBy(curCompoundEvent.args.lpStaked.toString()) // toString is lame hack to get different BigNumber versions to work together
     .div(curCompoundEvent.args.newLPTotalBalance.toString()) // same here
-  return getAPYApprox({ apr, compoundTimesPerYear })
+  return _getAPYApprox({ apr, compoundTimesPerYear })
 }
 
 /**
@@ -146,7 +145,7 @@ async function getFarmBotAPY(farmBotAddress: string): Promise<BigNumber> {
  * @param apr
  * @param compoundTimesPerYear
  */
-export function getAPYApprox({
+export function _getAPYApprox({
   apr,
   compoundTimesPerYear,
 }: {
@@ -168,12 +167,9 @@ export function getAPYApprox({
  *
  * NOTE: TVL is given in ethers, not wei
  * NOTE2: APY is given as a fraction, not a percentage
- *
- * @param _req
- * @param res
+ * NOTE3: requires compounding in the last day in order to work
  */
-export const getAllMetaFarmsAPY: HttpFunction = async (_req, res) => {
-  // TODO need to run compounder on meta-farms to get this to work! (not enough compound events otherwise)
+export async function getAllMetaFarmsValue() {
   const output: FarmBotValue = {}
   for (const farmData of FARM_DATA) {
     const metaFarmBotAddress = farmData.metaFarmBotAddress
@@ -188,7 +184,7 @@ export const getAllMetaFarmsAPY: HttpFunction = async (_req, res) => {
     }
   }
   Logger.debug('output: ' + JSON.stringify(output))
-  res.status(200).send(output)
+  return output
 }
 
 /**
@@ -196,11 +192,8 @@ export const getAllMetaFarmsAPY: HttpFunction = async (_req, res) => {
  *
  * NOTE: TVL is given in ethers, not wei
  * NOTE2: APY is given as a fraction, not a percentage
- *
- * @param _req
- * @param res
  */
-export const getAllBaseFarmsValue: HttpFunction = async (_req, res) => {
+export async function getAllBaseFarmsValue(){
   const output: FarmBotValue = {}
   for (const farmData of FARM_DATA) {
     const farmBotAddress = farmData.FPTokenAddress
@@ -213,5 +206,5 @@ export const getAllBaseFarmsValue: HttpFunction = async (_req, res) => {
     }
   }
   Logger.debug('output: ' + JSON.stringify(output))
-  res.status(200).send(output)
+  return output
 }

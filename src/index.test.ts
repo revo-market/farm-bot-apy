@@ -1,10 +1,10 @@
 import { BigNumber } from 'bignumber.js'
-import { getAPYApprox } from './index'
+import { _getAPYApprox } from './index'
 
 describe('getAPYApprox', () => {
   it('works for monthly compounding', () => {
     expect(
-      getAPYApprox({
+      _getAPYApprox({
         apr: new BigNumber(0.06), // 6%
         compoundTimesPerYear: new BigNumber(12),
       }).toFixed(5),
@@ -14,7 +14,7 @@ describe('getAPYApprox', () => {
     const apr = new BigNumber('0.50')
     const compoundTimesPerYear = new BigNumber('75000')
     expect(
-      getAPYApprox({
+      _getAPYApprox({
         apr,
         compoundTimesPerYear,
       }).toFixed(5),
