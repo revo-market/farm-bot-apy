@@ -23,6 +23,7 @@
     "release": "npx semantic-release"
   },
   "devDependencies": {
+    "@semantic-release/git": "^10.0.1",
     "@types/bunyan": "^1.8.8",
     "@types/bunyan-prettystream": "^0.1.32",
     "@types/jest": "^28.1.7",
@@ -50,7 +51,14 @@
     "branches": [
       "main"
     ],
-    "preset": "conventionalcommits"
+    "preset": "conventionalcommits",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
   },
   "dependencies": {
     "bignumber.js": "^9.1.0",
